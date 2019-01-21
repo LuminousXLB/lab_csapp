@@ -206,6 +206,7 @@ int allOddBits(int x) {
   return !((~bx) & 0xAA);
 }
 /* 
+
  * negate - return -x 
  *   Example: negate(1) = -1.
  *   Legal ops: ! ~ & ^ | + << >>
@@ -245,8 +246,22 @@ int isAsciiDigit(int x) {
  *   Max ops: 16
  *   Rating: 3
  */
-int conditional(int x, int y, int z) {
-  return 2;
+int conditional(int x, int y, int z)
+{
+  /*
+   * if x == 0. !!x = 0x00000000
+   * if x != 0. !!x = 0x00000001
+   *
+   *    0x01 << 31
+   * << 31 => 0x80000000
+   * >> 31 => 0xffffffff
+   */
+  int mask = ((!!x) << 31) >> 31;
+  /*
+   * if x == 0,  mask & y == 0,  mask & z == z
+   * if x != 0, ~mask & y == y, ~mask & z == 0
+   */
+  return (mask & y) | ((~mask) & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
