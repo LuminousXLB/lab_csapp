@@ -226,7 +226,17 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  /*
+   * 0x30 == 0b 0011 0000
+   * 0x39 == 0b 0011 1001
+   *
+   * !((x >> 4) ^ (0x03)) &&
+   * x & 0x08 ? (1000 1001) : true
+   * !(x & 0x08) | !(x & 0x06)
+   *
+   * 0x3a == 0b 0011 1010
+   */
+  return (!((x >> 4) ^ (0x03))) & (!(x & 0x08) | !(x & 0x06));
 }
 /* 
  * conditional - same as x ? y : z 
