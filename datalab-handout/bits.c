@@ -171,7 +171,19 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  /*
+   * tmax     = 0x7fffffff
+   * ~tmax    = 0x80000000
+   * tmax + 1 = 0x80000000
+   * 
+   * tmax    != 0xffffffff
+   * ~tmax   != 0x00000000
+   * tmax + 1 = 0x00000000
+   */
+
+	int comx = ~x;			// comx != 0x00       !! 0x01
+	int incx = x + 1;		// incx^comx == 0x00  ! 0x01
+	return (!!comx) & (!(incx ^ comx));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
