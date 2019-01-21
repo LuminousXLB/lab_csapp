@@ -357,9 +357,7 @@ int howManyBits(int x) {
   sum = ((~cond) & (sum | 0x01)) | (cond & sum);
   dif = ((~cond) & tmp) | (cond & dif);
 
-  sum += 1;
-
-  return sum + (dif & 0x01);
+  return sum + (dif & 0x01) + 1;
 }
 //float
 /* 
