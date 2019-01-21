@@ -194,7 +194,16 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  /*
+   *  x = 0b 1x1x 1x1x 1x1x 1x1x 1x1x 1x1x 1x1x 1x1x;
+   * ax = 0b 0000 0000 0000 0000 1x1x 1x1x 1x1x 1x1x;
+   * bx = 0b 0000 0000 0000 0000 0000 0000 1x1x 1x1x;
+   * 0b_txtxtxtx | 0b_01010101 = 0b_t1t1t1t1 == 0b_11111111
+   * 0x0x0x0x & 10101010
+   */
+  int ax = x & (x >> 16);
+  int bx = ax & (ax >> 8);
+  return !((~bx) & 0xAA);
 }
 /* 
  * negate - return -x 
