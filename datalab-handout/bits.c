@@ -181,9 +181,9 @@ int isTmax(int x) {
    * tmax + 1 = 0x00000000
    */
 
-	int comx = ~x;			// comx != 0x00       !! 0x01
-	int incx = x + 1;		// incx^comx == 0x00  ! 0x01
-	return (!!comx) & (!(incx ^ comx));
+  int comx = ~x;      // comx != 0x00       !! 0x01
+  int incx = x + 1;    // incx^comx == 0x00  ! 0x01
+  return (!!comx) & (!(incx ^ comx));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -271,7 +271,26 @@ int conditional(int x, int y, int z)
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  /*
+   *   x    y    x<=y
+   *  >=0  >=0  abs(x)<=abs(y)
+   *  >=0   <0  false
+   *   <0  >=0  true
+   *   <0   <0  abs(x)>=abs(y)
+   *
+   * (x ^ y) >> 31 ? !!(y >> 31)
+   *
+   *     x <= y
+   * <=> x - y <= 0
+   * <=> x + ~y + 1 <=0
+   * <=> (x + ~y + 1) >> 31 != 0
+   *
+   * <=> y - x >= 0
+   * <=> y + ~x + 1 >=0
+   * <=> (y + ~x + 1) >> 31 == 0
+   */
+  int cond = (x ^ y) >> 31;
+  return (cond & (!(y >> 31))) | ((~cond) & (!((y + ~x + 1) >> 31)));
 }
 //4
 /* 
