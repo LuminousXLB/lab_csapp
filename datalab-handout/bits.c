@@ -306,7 +306,7 @@ int logicalNeg(int x) {
   int bx = ax | (ax >> 8);
   int cx = bx | (bx >> 4);
   int dx = cx | (cx >> 2);
-  return !(dx | (dx >> 2));
+  return ((dx | (dx >> 1)) & 0x01) ^ 0x01;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -321,7 +321,45 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int dif = x ^ (x >> 1);
+  /* 
+   * int sum = 1;
+   * int i = 0;
+   * for (i = 0; i < 31; i++) {
+   *     sum += !!dif;
+   *     dif >>= 1;
+   * }
+   */
+  int sum = 0, tmp, cond;
+
+  tmp = dif >> 16;
+  cond = ((!tmp) << 31) >> 31;
+  sum = ((~cond) & (sum | 0x10)) | (cond & sum);
+  dif = ((~cond) & tmp) | (cond & dif);
+
+  tmp = dif >> 8;
+  cond = ((!tmp) << 31) >> 31;
+  sum = ((~cond) & (sum | 0x08)) | (cond & sum);
+  dif = ((~cond) & tmp) | (cond & dif);
+
+  tmp = dif >> 4;
+  cond = ((!tmp) << 31) >> 31;
+  sum = ((~cond) & (sum | 0x04)) | (cond & sum);
+  dif = ((~cond) & tmp) | (cond & dif);
+
+  tmp = dif >> 2;
+  cond = ((!tmp) << 31) >> 31;
+  sum = ((~cond) & (sum | 0x02)) | (cond & sum);
+  dif = ((~cond) & tmp) | (cond & dif);
+
+  tmp = dif >> 1;
+  cond = ((!tmp) << 31) >> 31;
+  sum = ((~cond) & (sum | 0x01)) | (cond & sum);
+  dif = ((~cond) & tmp) | (cond & dif);
+
+  sum += 1;
+
+  return sum + (dif & 0x01);
 }
 //float
 /* 
