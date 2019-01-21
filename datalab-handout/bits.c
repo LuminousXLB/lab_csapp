@@ -143,6 +143,12 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
+  /*
+   *   x ^ y
+   * = ~((~x) & (~y) | x & y)
+   * = ~((~x) & (~y)) & ~(x & y)
+   */
+  return ~((~x) & (~y)) & ~(x & y);
   return 2;
 }
 /* 
