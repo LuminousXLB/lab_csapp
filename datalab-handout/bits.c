@@ -415,24 +415,25 @@ unsigned floatScale2(unsigned uf) {
  */
 int floatFloat2Int(unsigned uf) {
   unsigned exponent = (uf << 1) >> 24;
-  if (exponent == 0xff) {
+
+  if (exponent >= 0x9f) {
   	return 0x80000000;
-  }
+  } else if (!exponent) {
+ 		return 0;
+  } else {
+		int sign = (uf & 0x80000000) ? -1 : 1;
+    unsigned fraction = uf & 0x007fffff;
 
-  unsigned sign = uf & 0x80000000;
-  unsigned fraction = uf & 0x007fffff;
-
-  int val = sign ? -1 : 1;
-  if (exponent) {
   	int EXP = exponent - 0x7f;
   	fraction |= 0x00800000;
+
   	if (EXP >=0) {
-  		return fraction << EXP;
+  		fraction <<= EXP;
   	} else {
-  		return fraction >> (-EXP);
+  		fraction >>= -EXP;
   	}
-  } else {
-  	return 0;
+
+  	return sign * (fraction >> 23);
   }
 }
 /* 
