@@ -417,23 +417,23 @@ int floatFloat2Int(unsigned uf) {
   unsigned exponent = (uf << 1) >> 24;
 
   if (exponent >= 0x9f) {
-  	return 0x80000000;
-  } else if (!exponent) {
- 		return 0;
+    return 0x80000000;
+  } else if (exponent == 0x00) {
+    return 0;
   } else {
-		int sign = (uf & 0x80000000) ? -1 : 1;
+    int sign = (uf & 0x80000000) ? -1 : 1;
     unsigned fraction = uf & 0x007fffff;
 
-  	int EXP = exponent - 0x7f;
-  	fraction |= 0x00800000;
+    int EXP = exponent - 0x7f;
+    fraction |= 0x00800000;
 
-  	if (EXP >=0) {
-  		fraction <<= EXP;
-  	} else {
-  		fraction >>= -EXP;
-  	}
+    if (EXP >=0) {
+      fraction <<= EXP;
+    } else {
+      fraction >>= -EXP;
+    }
 
-  	return sign * (fraction >> 23);
+    return sign * (fraction >> 23);
   }
 }
 /* 
@@ -450,5 +450,23 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  int exponent = 0x7f + x;
+
+  if(!exponent) {
+    return 0x00400000;
+  }
+
+  if(exponent & 0x80000000) {
+    return 0x00000000;
+  }
+
+  if (exponent & 0xffffff00) {
+    return 0x7f800000;
+  }
+
+  if (exponent ^ 0xff) {
+    return exponent << 23;
+  } else {
+    return 0x7f800000;
+  }
 }
