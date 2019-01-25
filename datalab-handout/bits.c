@@ -372,7 +372,34 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  /**
+   * float * fptr = (float *) &uf;
+	 * float ret = (*fptr)*2;
+	 * unsigned * uptr = (unsigned *) &ret;
+	 * return *uptr;
+   */
+
+	unsigned sign = uf & 0x80000000;
+	unsigned exponent = (uf << 1) >> 24;
+	unsigned fraction = uf & 0x007fffff;
+
+	// Infinity
+	if (exponent == 0xff) {
+		return uf;
+	}
+
+	// Normalized
+	if (exponent) {
+		exponent++;
+	} else {
+		// Denormalized
+		if (fraction & 0x00400000) {
+			exponent++;
+		}
+		uf <<= 1;
+	}
+
+  return sign | (exponent << 23) | (uf & 0x007fffff);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
