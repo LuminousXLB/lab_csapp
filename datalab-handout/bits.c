@@ -379,14 +379,14 @@ unsigned floatScale2(unsigned uf) {
    * return *uptr;
    */
 
+  unsigned sign = uf & 0x80000000;
   unsigned exponent = (uf << 1) >> 24;
+  unsigned fraction = uf & 0x007fffff;
+
   // Infinity
   if (exponent == 0xff) {
     return uf;
   }
-
-  unsigned sign = uf & 0x80000000;
-  unsigned fraction = uf & 0x007fffff;
 
   // Normalized
   if (exponent) {
@@ -423,8 +423,17 @@ int floatFloat2Int(unsigned uf) {
   unsigned fraction = uf & 0x007fffff;
 
   int val = sign ? -1 : 1;
-  
-  return 2;
+  if (exponent) {
+  	int EXP = exponent - 0x7f;
+  	fraction |= 0x00800000;
+  	if (EXP >=0) {
+  		return fraction << EXP;
+  	} else {
+  		return fraction >> (-EXP);
+  	}
+  } else {
+  	return 0;
+  }
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
