@@ -379,14 +379,14 @@ unsigned floatScale2(unsigned uf) {
    * return *uptr;
    */
 
-  unsigned sign = uf & 0x80000000;
   unsigned exponent = (uf << 1) >> 24;
-  unsigned fraction = uf & 0x007fffff;
-
   // Infinity
   if (exponent == 0xff) {
     return uf;
   }
+
+  unsigned sign = uf & 0x80000000;
+  unsigned fraction = uf & 0x007fffff;
 
   // Normalized
   if (exponent) {
@@ -414,6 +414,16 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
+  unsigned exponent = (uf << 1) >> 24;
+  if (exponent == 0xff) {
+  	return 0x80000000;
+  }
+
+  unsigned sign = uf & 0x80000000;
+  unsigned fraction = uf & 0x007fffff;
+
+  int val = sign ? -1 : 1;
+  
   return 2;
 }
 /* 
