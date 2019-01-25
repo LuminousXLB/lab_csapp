@@ -374,30 +374,30 @@ int howManyBits(int x) {
 unsigned floatScale2(unsigned uf) {
   /**
    * float * fptr = (float *) &uf;
-	 * float ret = (*fptr)*2;
-	 * unsigned * uptr = (unsigned *) &ret;
-	 * return *uptr;
+   * float ret = (*fptr)*2;
+   * unsigned * uptr = (unsigned *) &ret;
+   * return *uptr;
    */
 
-	unsigned sign = uf & 0x80000000;
-	unsigned exponent = (uf << 1) >> 24;
-	unsigned fraction = uf & 0x007fffff;
+  unsigned sign = uf & 0x80000000;
+  unsigned exponent = (uf << 1) >> 24;
+  unsigned fraction = uf & 0x007fffff;
 
-	// Infinity
-	if (exponent == 0xff) {
-		return uf;
-	}
+  // Infinity
+  if (exponent == 0xff) {
+    return uf;
+  }
 
-	// Normalized
-	if (exponent) {
-		exponent++;
-	} else {
-		// Denormalized
-		if (fraction & 0x00400000) {
-			exponent++;
-		}
-		uf <<= 1;
-	}
+  // Normalized
+  if (exponent) {
+    exponent++;
+  } else {
+    // Denormalized
+    if (fraction & 0x00400000) {
+      exponent++;
+    }
+    uf <<= 1;
+  }
 
   return sign | (exponent << 23) | (uf & 0x007fffff);
 }
