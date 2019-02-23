@@ -21,8 +21,31 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
  */
 void trans(int M, int N, int A[N][M], int B[M][N]);
 
-char transpose_submit_desc[] = "Transpose submission";
-void transpose_submit(int M, int N, int A[N][M], int B[M][N])
+char transpose_history0_desc[] = "Transpose history0";
+void transpose_history0(int M, int N, int A[N][M], int B[M][N])
+{
+    int i, j;
+
+    for (j = 0; j < M; j += 8) {
+        int xj = j + 8;
+        int maxj = xj < M ? xj : M;
+        for (i = 0; i < N; i += 8) {
+            int xi = i + 8;
+            int maxi = xi < N ? xi : N;
+
+            // printf("\n\ti = %d \t j = %d \n", i, j);
+
+            for (xi = i; xi < maxi; xi++) {
+                for (xj = j; xj < maxj; xj++) {
+                    B[xj][xi] = A[xi][xj];
+                }
+            }
+        }
+    }
+}
+
+char transpose_history1_desc[] = "Transpose history1";
+void transpose_history1(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j;
 
@@ -60,23 +83,56 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
     }
 }
 
-char transpose_history0_desc[] = "Transpose history0";
-void transpose_history0(int M, int N, int A[N][M], int B[M][N])
+char transpose_submit_desc[] = "Transpose submission";
+void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+    if (M != 64 && N != 64) {
+        return transpose_history1(M, N, A, B);
+    }
     int i, j;
 
-    for (j = 0; j < M; j += 8) {
-        int xj = j + 8;
-        int maxj = xj < M ? xj : M;
-        for (i = 0; i < N; i += 8) {
-            int xi = i + 8;
-            int maxi = xi < N ? xi : N;
+    for (j = 0; j < M; j += 4) {
+        if (j + 4 <= M) {
+            // maxj = j+4
+            for (i = 0; i < N; i += 2) {
+                if (i + 2 <= N) {
+                    int cell00 = A[i][j];
+                    int cell01 = A[i][j + 1];
+                    int cell02 = A[i][j + 2];
+                    int cell03 = A[i][j + 3];
 
-            // printf("\n\ti = %d \t j = %d \n", i, j);
+                    int cell10 = A[i + 1][j];
+                    int cell11 = A[i + 1][j + 1];
+                    int cell12 = A[i + 1][j + 2];
+                    int cell13 = A[i + 1][j + 3];
 
-            for (xi = i; xi < maxi; xi++) {
-                for (xj = j; xj < maxj; xj++) {
-                    B[xj][xi] = A[xi][xj];
+                    B[j + 0][i] = cell00;
+                    B[j + 1][i] = cell01;
+                    B[j + 2][i] = cell02;
+                    B[j + 3][i] = cell03;
+
+                    B[j + 0][i + 1] = cell10;
+                    B[j + 1][i + 1] = cell11;
+                    B[j + 2][i + 1] = cell12;
+                    B[j + 3][i + 1] = cell13;
+                } else {
+                    int col0 = A[i][j];
+                    int col1 = A[i][j + 1];
+                    int col2 = A[i][j + 2];
+                    int col3 = A[i][j + 3];
+
+                    B[j + 0][i] = col0;
+                    B[j + 1][i] = col1;
+                    B[j + 2][i] = col2;
+                    B[j + 3][i] = col3;
+                }
+            }
+        } else {
+            // maxj = M < j+4
+            int xj;
+            for (i = 0; i < N; i++) {
+                for (xj = j; xj < M; xj++) {
+                    B[xj][i] = A[i][xj];
                 }
             }
         }
