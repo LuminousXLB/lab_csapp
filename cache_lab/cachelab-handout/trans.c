@@ -28,10 +28,52 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 
     for (j = 0; j < M; j += 8) {
         int xj = j + 8;
+        if (xj <= M) {
+            // maxj = j+8
+            for (i = 0; i < N; i++) {
+                int col0 = A[i][j];
+                int col1 = A[i][j + 1];
+                int col2 = A[i][j + 2];
+                int col3 = A[i][j + 3];
+                int col4 = A[i][j + 4];
+                int col5 = A[i][j + 5];
+                int col6 = A[i][j + 6];
+                int col7 = A[i][j + 7];
+
+                B[j + 0][i] = col0;
+                B[j + 1][i] = col1;
+                B[j + 2][i] = col2;
+                B[j + 3][i] = col3;
+                B[j + 4][i] = col4;
+                B[j + 5][i] = col5;
+                B[j + 6][i] = col6;
+                B[j + 7][i] = col7;
+            }
+        } else {
+            // maxj = M < j+8
+            for (i = 0; i < N; i++) {
+                for (xj = j; xj < M; xj++) {
+                    B[xj][i] = A[i][xj];
+                }
+            }
+        }
+    }
+}
+
+char transpose_history0_desc[] = "Transpose history0";
+void transpose_history0(int M, int N, int A[N][M], int B[M][N])
+{
+    int i, j;
+
+    for (j = 0; j < M; j += 8) {
+        int xj = j + 8;
         int maxj = xj < M ? xj : M;
         for (i = 0; i < N; i += 8) {
             int xi = i + 8;
             int maxi = xi < N ? xi : N;
+
+            // printf("\n\ti = %d \t j = %d \n", i, j);
+
             for (xi = i; xi < maxi; xi++) {
                 for (xj = j; xj < maxj; xj++) {
                     B[xj][xi] = A[xi][xj];
@@ -73,9 +115,10 @@ void registerFunctions()
 {
     /* Register your solution function */
     registerTransFunction(transpose_submit, transpose_submit_desc);
+    // registerTransFunction(transpose_try, transpose_try_desc);
 
     /* Register any additional transpose functions */
-    registerTransFunction(trans, trans_desc);
+    // registerTransFunction(trans, trans_desc);
 }
 
 /* 
