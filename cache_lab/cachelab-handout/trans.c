@@ -48,20 +48,21 @@ char transpose_history1_desc[] = "Transpose history1";
 void transpose_history1(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j;
+    int col0, col1, col2, col3, col4, col5, col6, col7;
 
     for (j = 0; j < M; j += 8) {
         int xj = j + 8;
         if (xj <= M) {
             // maxj = j+8
             for (i = 0; i < N; i++) {
-                int col0 = A[i][j];
-                int col1 = A[i][j + 1];
-                int col2 = A[i][j + 2];
-                int col3 = A[i][j + 3];
-                int col4 = A[i][j + 4];
-                int col5 = A[i][j + 5];
-                int col6 = A[i][j + 6];
-                int col7 = A[i][j + 7];
+                col0 = A[i][j];
+                col1 = A[i][j + 1];
+                col2 = A[i][j + 2];
+                col3 = A[i][j + 3];
+                col4 = A[i][j + 4];
+                col5 = A[i][j + 5];
+                col6 = A[i][j + 6];
+                col7 = A[i][j + 7];
 
                 B[j + 0][i] = col0;
                 B[j + 1][i] = col1;
@@ -89,22 +90,24 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
     if (M != 64 && N != 64) {
         return transpose_history1(M, N, A, B);
     }
-    int i, j;
+
+    int i, j, xj;
+    int cell00, cell01, cell02, cell03, cell10, cell11, cell12, cell13;
 
     for (j = 0; j < M; j += 4) {
         if (j + 4 <= M) {
             // maxj = j+4
             for (i = 0; i < N; i += 2) {
                 if (i + 2 <= N) {
-                    int cell00 = A[i][j];
-                    int cell01 = A[i][j + 1];
-                    int cell02 = A[i][j + 2];
-                    int cell03 = A[i][j + 3];
+                    cell00 = A[i][j];
+                    cell01 = A[i][j + 1];
+                    cell02 = A[i][j + 2];
+                    cell03 = A[i][j + 3];
 
-                    int cell10 = A[i + 1][j];
-                    int cell11 = A[i + 1][j + 1];
-                    int cell12 = A[i + 1][j + 2];
-                    int cell13 = A[i + 1][j + 3];
+                    cell10 = A[i + 1][j];
+                    cell11 = A[i + 1][j + 1];
+                    cell12 = A[i + 1][j + 2];
+                    cell13 = A[i + 1][j + 3];
 
                     B[j + 0][i] = cell00;
                     B[j + 1][i] = cell01;
@@ -116,20 +119,19 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
                     B[j + 2][i + 1] = cell12;
                     B[j + 3][i + 1] = cell13;
                 } else {
-                    int col0 = A[i][j];
-                    int col1 = A[i][j + 1];
-                    int col2 = A[i][j + 2];
-                    int col3 = A[i][j + 3];
+                    cell00 = A[i][j];
+                    cell01 = A[i][j + 1];
+                    cell02 = A[i][j + 2];
+                    cell03 = A[i][j + 3];
 
-                    B[j + 0][i] = col0;
-                    B[j + 1][i] = col1;
-                    B[j + 2][i] = col2;
-                    B[j + 3][i] = col3;
+                    B[j + 0][i] = cell00;
+                    B[j + 1][i] = cell01;
+                    B[j + 2][i] = cell02;
+                    B[j + 3][i] = cell03;
                 }
             }
         } else {
             // maxj = M < j+4
-            int xj;
             for (i = 0; i < N; i++) {
                 for (xj = j; xj < M; xj++) {
                     B[xj][i] = A[i][xj];
