@@ -26,13 +26,12 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j;
 
-    for (i = 0; i < N; i += 8) {
-        int xi = i + 8;
-        int maxi = xi < N ? xi : N;
-        for (j = 0; j < M; j += 8) {
-            int xj = j + 8;
-            int maxj = xj < M ? xj : M;
-
+    for (j = 0; j < M; j += 8) {
+        int xj = j + 8;
+        int maxj = xj < M ? xj : M;
+        for (i = 0; i < N; i += 8) {
+            int xi = i + 8;
+            int maxi = xi < N ? xi : N;
             for (xi = i; xi < maxi; xi++) {
                 for (xj = j; xj < maxj; xj++) {
                     B[xj][xi] = A[xi][xj];
